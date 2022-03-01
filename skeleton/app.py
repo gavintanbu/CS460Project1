@@ -153,7 +153,14 @@ def getAllPhotos():
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 ###gavinend
+###jonbegin
 
+def getFriends():
+	cursor=conn.cursor()
+	cursor.execute("SELECT friend_name FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
@@ -209,7 +216,11 @@ def hello():
 def browse():
 	return render_template('hello.html',  photos=getAllPhotos(),base64=base64)
 ###gavinend
-
+###jonbegin--------------------------------------
+@app.route("/friends",methods=['GET'])
+def friends():
+	return render_template('friendtemp.html',  friendos=getFriends())
+###jonend---------------------------------------
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
