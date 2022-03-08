@@ -172,7 +172,6 @@ def getAlbumIdFromName(albumname):
 
 ###gavinend
 ###jonbegin
-<<<<<<< HEAD
 
 def getFriends():
 	cursor=conn.cursor()
@@ -180,8 +179,6 @@ def getFriends():
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 ###jonend
-=======
->>>>>>> 297c0694f49309624f4facba4a08643eee804e9d
 
 def getFriends():
 	cursor=conn.cursor()
