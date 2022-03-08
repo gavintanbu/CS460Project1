@@ -178,12 +178,6 @@ def getFriends():
 	cursor.execute("SELECT friend_name FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
-###jonend
-
-def getFriends():
-	cursor=conn.cursor()
-	cursor.execute("SELECT friend_name FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
-	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 ###jonend
 def getUserIdFromEmail(email):
