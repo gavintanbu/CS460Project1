@@ -172,6 +172,7 @@ def getAlbumIdFromName(albumname):
 
 ###gavinend
 ###jonbegin
+<<<<<<< HEAD
 
 def getFriends():
 	cursor=conn.cursor()
@@ -179,7 +180,15 @@ def getFriends():
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 ###jonend
+=======
+>>>>>>> 297c0694f49309624f4facba4a08643eee804e9d
 
+def getFriends():
+	cursor=conn.cursor()
+	cursor.execute("SELECT friend_name FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
@@ -266,7 +275,11 @@ def myalbums():
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	return render_template('albumslist.html', albums=getAlbums(uid))
 ###gavinend
-
+###jonbegin--------------------------------------
+@app.route("/friends",methods=['GET'])
+def friends():
+	return render_template('friendtemp.html',  friendos=getFriends())
+###jonend---------------------------------------
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
