@@ -4,8 +4,8 @@ DROP TABLE IF EXISTS pictures CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 
 CREATE TABLE Users (
-    user_id int4  AUTO_INCREMENT,
-    last_name    CHAR(20),
+    user_id int4 AUTO_INCREMENT,
+    last_name CHAR(20),
     email varchar(255) UNIQUE,
     password varchar(255),
     first_name CHAR(20),
@@ -33,7 +33,7 @@ CREATE TABLE Tag
 
 CREATE TABLE Pictures
 (
-  picture_id int4  AUTO_INCREMENT,
+  picture_id int4 AUTO_INCREMENT,
   user_id int4,
   imgdata longblob ,
   caption VARCHAR(255),
@@ -41,16 +41,10 @@ CREATE TABLE Pictures
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
 
-
-
-
-
-
-
 CREATE TABLE Album
 (
 	dates DATE,
-	album_id int4  AUTO_INCREMENT,
+	album_id int4 AUTO_INCREMENT,
 	album_name varchar(300), 
 	Primary Key(album_id)
 );
@@ -86,16 +80,9 @@ FOREIGN KEY(word_desc)
 	REFERENCES Tag(word_desc)
 );
 
-
-
-
-
-
-
 CREATE TABLE Creates(
 	User_id int4,
-album_id int4,
-
+    album_id int4,
 Primary Key(User_id, album_id),
 FOREIGN KEY(User_id)
 	REFERENCES Users(User_id),

@@ -13,6 +13,7 @@ import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
 import flask_login
+from datetime import datetime
 
 #for image uploading
 import os, base64
@@ -145,6 +146,7 @@ def getUsersPhotos(uid):
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+
 ###gavinbegin
 
 def getAllPhotos():
@@ -152,7 +154,31 @@ def getAllPhotos():
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getAlbums(uid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT album_id FROM Creates WHERE User_id = '{0}'".format(uid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+
+def getAlbumIdFromDate(date):
+	cursor=conn.cursor()
+	cursor.execute("SELECT album_id  FROM Album WHERE dates = '{0}'".format(date))
+	return cursor.fetchone()[0]
+
+def getAlbumIdFromName(albumname):
+	cursor=conn.cursor()
+	cursor.execute("SELECT album_id  FROM Album WHERE album_name = '{0}'".format(albumname))
+	return cursor.fetchone()[0]
+
 ###gavinend
+###jonbegin
+
+def getFriends():
+	cursor=conn.cursor()
+	cursor.execute("SELECT friend_name FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+###jonend
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -168,6 +194,7 @@ def isEmailUnique(email):
 	else:
 		return True
 #end login code
+
 
 @app.route('/profile')
 @flask_login.login_required
@@ -208,6 +235,36 @@ def hello():
 @app.route("/browse",methods=['GET'])
 def browse():
 	return render_template('hello.html',  photos=getAllPhotos(),base64=base64)
+
+@app.route("/createalbum",methods=['GET','POST'])
+@flask_login.login_required
+def create_album():
+	if request.method=='POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		try:
+			albumname=request.form.get('albumname')
+		except:
+			print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+			return flask.redirect(flask.url_for('createalbum'))
+		currentdate=datetime.now()
+		cursor = conn.cursor()
+		print(cursor.execute("INSERT INTO Album (dates, album_name) VALUES ('{0}', '{1}')".format(currentdate,albumname)))
+
+		aid=getAlbumIdFromName(albumname)
+
+		print(cursor.execute("INSERT INTO Creates (user_id, album_id) VALUES ('{0}', '{1}')".format(uid,aid)))
+		conn.commit()
+		return render_template('albumslist.html',albums=getAlbums(uid))
+	else:
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		return render_template('createalbum.html')
+	
+
+@app.route("/myalbums",methods=['GET'])
+@flask_login.login_required
+def myalbums():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('albumslist.html', albums=getAlbums(uid))
 ###gavinend
 
 

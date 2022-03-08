@@ -1,0 +1,15 @@
+<!-- author ben lawson (balawson@bu.edu) -->
+<head>
+    <title>Here are your friends!</title>
+
+{% if friendos %}
+<h2>friends</h2>
+    <ul>
+    {% for fri in friendos %}
+
+        <li>{{fri[0]}}<br>
+
+    {% endfor %}
+    </ul>
+{% endif %}
+

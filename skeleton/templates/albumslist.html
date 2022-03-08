@@ -1,0 +1,13 @@
+<head>
+    <title>Here are your Albums!</title>
+
+{% if albums %}
+<h2>Albums</h2>
+    <ul>
+    {% for alb in albums %}
+
+        <li>{{alb[0]}}<br>
+        
+    {% endfor %}
+    </ul>
+{% endif %}
