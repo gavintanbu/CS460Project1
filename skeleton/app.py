@@ -157,8 +157,17 @@ def getAllPhotos():
 def getAlbums(uid):
 	cursor=conn.cursor()
 	cursor.execute("SELECT album_id FROM Creates WHERE User_id = '{0}'".format(uid))
+	return cursor.fetchall()
+
+def getAlbumNameFromId(aid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT album_name FROM Album WHERE album_id = '{0}'".format(aid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getAlbumIDandNameFromId(aid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT album_id, album_name FROM Album WHERE album_id = '{0}'".format(aid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 def getAlbumIdFromDate(date):
 	cursor=conn.cursor()
@@ -169,6 +178,7 @@ def getAlbumIdFromName(albumname):
 	cursor=conn.cursor()
 	cursor.execute("SELECT album_id  FROM Album WHERE album_name = '{0}'".format(albumname))
 	return cursor.fetchone()[0]
+	
 
 ###gavinend
 ###jonbegin
@@ -214,14 +224,24 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		aid=request.form.get('albumid')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
+		pid=cursor.lastrowid
+
+		cursor.execute('''INSERT INTO Contain (picture_id, album_id) VALUES (%s, %s)''' ,(pid,aid))
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
-		return render_template('upload.html')
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		aids=getAlbums(uid)
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+
+		return render_template('upload.html', albumids_and_albumnames=aids_and_anames)
 #end photo uploading code
 
 
@@ -254,7 +274,13 @@ def create_album():
 
 		print(cursor.execute("INSERT INTO Creates (user_id, album_id) VALUES ('{0}', '{1}')".format(uid,aid)))
 		conn.commit()
-		return render_template('albumslist.html',albums=getAlbums(uid))
+
+		aids=getAlbums(uid)
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+
+		return render_template('albumslist.html',albumids_and_albumnames=aids_and_anames)
 	else:
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		return render_template('createalbum.html')
@@ -264,7 +290,19 @@ def create_album():
 @flask_login.login_required
 def myalbums():
 	uid = getUserIdFromEmail(flask_login.current_user.id)
-	return render_template('albumslist.html', albums=getAlbums(uid))
+	aids=getAlbums(uid)
+	aids_and_anames=[]
+	for a in aids:
+		aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+
+	return render_template('albumslist.html',albumids_and_albumnames=aids_and_anames)
+
+@app.route("/addtoalbum",methods=['GET', 'POST'])
+@flask_login.login_required
+def addtoalbum():
+	if (request.method=='GET'):
+		return render_template('addtoalbum.html', album)
+
 ###gavinend
 ###jonbegin--------------------------------------
 @app.route("/friends",methods=['GET'])

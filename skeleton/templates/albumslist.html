@@ -1,12 +1,13 @@
 <head>
     <title>Here are your Albums!</title>
 
-{% if albums %}
-<h2>Albums</h2>
-    <ul>
-    {% for alb in albums %}
 
-        <li>{{alb[0]}}<br>
+{% if albumids_and_albumnames %}
+<h2>Here are the available Albums</h2>
+    <ul>
+    {% for alb in albumids_and_albumnames %}
+
+        <li>(Album ID, Album Name): {{alb}}<br>
         
     {% endfor %}
     </ul>
