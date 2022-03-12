@@ -330,7 +330,7 @@ def addtoalbum():
 		aid=request.form.get('albumid')
 		pid=request.form.get('photoid')
 		cursor = conn.cursor()
-		cursor.execute("UPDATE Contain SET album_id='{0}', picture_id='{1}' WHERE album_id='{0}' AND picture_id='{1}'".format(aid,pid))
+		cursor.execute("UPDATE Contain SET album_id='{0}', picture_id='{1}' WHERE picture_id='{1}'".format(aid,pid))
 		return render_template('albumslist.html',albumids_and_albumnames=aids_and_anames,base64=base64)
 
 @app.route("/viewalbum",methods=['GET', 'POST'])
