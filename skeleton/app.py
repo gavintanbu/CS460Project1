@@ -253,7 +253,8 @@ def upload_file():
 		aids=getAlbums(uid)
 		aids_and_anames=[]
 		for a in aids:
-			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+			print(a)
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 
 		return render_template('upload.html', albumids_and_albumnames=aids_and_anames)
 #end photo uploading code
@@ -284,7 +285,7 @@ def createalbum():
 		cursor = conn.cursor()
 		print(cursor.execute("INSERT INTO Album (dates, album_name) VALUES ('{0}', '{1}')".format(currentdate,albumname)))
 
-		aid=getAlbumIdFromName(albumname)
+		aid=cursor.lastrowid
 
 		print(cursor.execute("INSERT INTO Creates (user_id, album_id) VALUES ('{0}', '{1}')".format(uid,aid)))
 		conn.commit()
@@ -292,7 +293,7 @@ def createalbum():
 		aids=getAlbums(uid)
 		aids_and_anames=[]
 		for a in aids:
-			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 
 		return render_template('albumslist.html',albumids_and_albumnames=aids_and_anames)
 	else:
@@ -307,7 +308,7 @@ def myalbums():
 	aids=getAlbums(uid)
 	aids_and_anames=[]
 	for a in aids:
-		aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+		aids_and_anames+=getAlbumIDandNameFromId(a[0])
 
 	return render_template('albumslist.html',albumids_and_albumnames=aids_and_anames)
 
@@ -319,14 +320,14 @@ def addtoalbum():
 		aids=getAlbums(uid)
 		aids_and_anames=[]
 		for a in aids:
-			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 		return render_template('addtoalbum.html', photos=getUsersPhotos(uid), albumids_and_albumnames=aids_and_anames,base64=base64)
 	elif (request.method=='POST'):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		aids=getAlbums(uid)
 		aids_and_anames=[]
 		for a in aids:
-			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 		aid=request.form.get('albumid')
 		pid=request.form.get('photoid')
 		cursor = conn.cursor()
@@ -340,7 +341,7 @@ def viewalbum():
 		aids=getAllAlbumIds() #getting every album id
 		aids_and_anames=[]
 		for a in aids:
-			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 		return render_template('viewalbum.html', albumids_and_albumnames=aids_and_anames)
 	elif (request.method=='POST'):
 		aid=request.form.get('albumid')
@@ -355,7 +356,7 @@ def viewalbum():
 			#print(p[0])
 			photoslist+=getPhotoFromPhotoId(p[0])
 		for a in aids:
-			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 		return render_template('viewalbum.html', photos=photoslist, base64=base64)
 
 		
