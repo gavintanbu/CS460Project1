@@ -15,6 +15,15 @@ CREATE TABLE Users (
    CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
+CREATE TABLE Friends
+(
+    user_id int4,
+    user_friend_id int4,
+    friend_name CHAR(41),
+    PRIMARY KEY (user_id,user_friend_id),
+    FOREIGN KEY (user_friend_id) REFERENCES Users(user_id)
+);
+
 CREATE TABLE Comments 
 (
 date Date,
