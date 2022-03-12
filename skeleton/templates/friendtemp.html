@@ -8,7 +8,27 @@
     {% for fri in friendos %}
 
         <li>{{fri[0]}}<br>
+        
     {% endfor %}
     </ul>
 {% endif %}
+{% if arr %}
+<h2>Recommendations :) (based on your exisiting friends)</h2>
+    <ul>
+    {% for i in arr %}
+
+        {% for ind in i %}
+
+            <li>(Friend Name, Friend ID): {{ind}}<br>
+    
+        {% endfor %}
+        
+    {% endfor %}
+    </ul>
+{% endif %}
+Add new friends  here!
+<form action='friends' method='POST'>
+				<input type='text' name='user_id' id='user_id' placeholder='user_id'></input>
+				<input type='submit' name='submit'></input>
+			   </form></br>
 

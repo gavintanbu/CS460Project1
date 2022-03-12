@@ -201,7 +201,15 @@ def getFriends():
 	cursor=conn.cursor()
 	cursor.execute("SELECT friend_name FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
-
+def getFriendsID():								#gets the names from friends
+	cursor=conn.cursor()
+	x =4000
+	cursor.execute("SELECT user_friend_id FROM Friends WHERE user_id = '{0}'".format(getUserIdFromEmail(flask_login.current_user.id)))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getFriendsofFriends(idnum):						#getting friends of friends using ID
+	cursor=conn.cursor()
+	cursor.execute("SELECT friend_name,user_friend_id FROM Friends WHERE user_id = '{0}'".format(idnum))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 ###jonend
 def getUserIdFromEmail(email):
@@ -366,7 +374,15 @@ def viewalbum():
 ###jonbegin--------------------------------------
 @app.route("/friends",methods=['GET'])
 def friends():
-	return render_template('friendtemp.html',  friendos=getFriends())
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	friendos=getFriends()
+	idd = getFriendsID()
+	recomendationarray = []
+	for i in idd:
+		for tupe in i:
+			idvar = tupe
+			recomendationarray += [getFriendsofFriends(idvar)]
+	return render_template('friendtemp.html',  friendos=getFriends(), arr = recomendationarray)
 ###jonend---------------------------------------
 
 if __name__ == "__main__":
