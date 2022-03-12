@@ -154,6 +154,11 @@ def getAllPhotos():
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getAllAlbumIds():
+	cursor=conn.cursor()
+	cursor.execute("SELECT album_id FROM Album")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 def getAlbums(uid):
 	cursor=conn.cursor()
 	cursor.execute("SELECT album_id FROM Creates WHERE User_id = '{0}'".format(uid))
@@ -178,8 +183,17 @@ def getAlbumIdFromName(albumname):
 	cursor=conn.cursor()
 	cursor.execute("SELECT album_id  FROM Album WHERE album_name = '{0}'".format(albumname))
 	return cursor.fetchone()[0]
-	
 
+def getAllPhotosFromAlbum(aid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT picture_id FROM Contain WHERE album_id= '{0}'".format(aid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getPhotoFromPhotoId(pid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id= '{0}' ".format(pid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+	
 ###gavinend
 ###jonbegin
 
@@ -258,7 +272,7 @@ def browse():
 
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
-def create_album():
+def createalbum():
 	if request.method=='POST':
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		try:
@@ -301,7 +315,50 @@ def myalbums():
 @flask_login.login_required
 def addtoalbum():
 	if (request.method=='GET'):
-		return render_template('addtoalbum.html', album)
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		aids=getAlbums(uid)
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+		return render_template('addtoalbum.html', photos=getUsersPhotos(uid), albumids_and_albumnames=aids_and_anames,base64=base64)
+	elif (request.method=='POST'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		aids=getAlbums(uid)
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+		aid=request.form.get('albumid')
+		pid=request.form.get('photoid')
+		cursor = conn.cursor()
+		cursor.execute("UPDATE Contain SET album_id='{0}', picture_id='{1}' WHERE album_id='{0}' AND picture_id='{1}'".format(aid,pid))
+		return render_template('albumslist.html',albumids_and_albumnames=aids_and_anames,base64=base64)
+
+@app.route("/viewalbum",methods=['GET', 'POST'])
+def viewalbum():
+	if (request.method=='GET'):
+		aids=getAllAlbumIds() #getting every album id
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+		return render_template('viewalbum.html', albumids_and_albumnames=aids_and_anames)
+	elif (request.method=='POST'):
+		aid=request.form.get('albumid')
+		aids=getAllAlbumIds() #getting every album id
+		aids_and_anames=[]
+
+		pids=getAllPhotosFromAlbum(aid)
+		print(pids)
+		photoslist=[]
+
+		for p in pids:
+			print(p[0])
+			photoslist+=getPhotoFromPhotoId(p[0])
+		for a in aids:
+			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
+		return render_template('viewalbum.html', photos=photoslist, base64=base64)
+
+		
+		
 
 ###gavinend
 ###jonbegin--------------------------------------
