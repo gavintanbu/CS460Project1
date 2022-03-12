@@ -365,7 +365,15 @@ def viewalbum():
 ###jonbegin--------------------------------------
 @app.route("/friends",methods=['GET'])
 def friends():
-	return render_template('friendtemp.html',  friendos=getFriends())
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	friendos=getFriends()
+	idd = getFriendsID()
+	recomendationarray = []
+	for i in idd:
+		for tupe in i:
+			idvar = tupe
+			recomendationarray += [getFriendsofFriends(idvar)]
+	return render_template('friendtemp.html',  friendos=getFriends(), arr = recomendationarray)
 ###jonend---------------------------------------
 
 if __name__ == "__main__":
