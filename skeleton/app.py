@@ -348,11 +348,11 @@ def viewalbum():
 		aids_and_anames=[]
 
 		pids=getAllPhotosFromAlbum(aid)
-		print(pids)
+		#print(pids)
 		photoslist=[]
 
 		for p in pids:
-			print(p[0])
+			#print(p[0])
 			photoslist+=getPhotoFromPhotoId(p[0])
 		for a in aids:
 			aids_and_anames+=[getAlbumIDandNameFromId(a[0])]
