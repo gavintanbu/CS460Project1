@@ -193,6 +193,21 @@ def getPhotoFromPhotoId(pid):
 	cursor=conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id= '{0}' ".format(pid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def delteAlbumFromAlbumId(aid):
+	cursor=conn.cursor()
+	cursor.execute("DELETE FROM Contain WHERE album_id= '{0}' ".format(aid))
+	cursor.execute("DELETE FROM Creates WHERE album_id= '{0}' ".format(aid))
+	cursor.execute("DELETE FROM Album WHERE album_id= '{0}' ".format(aid))
+	conn.commit()
+
+def deletePhotofromPhotoId(pid):
+	cursor=conn.cursor()
+	cursor.execute("DELETE FROM Contain WHERE picture_id= '{0}' ".format(pid))
+	cursor.execute("DELETE FROM Describes WHERE picture_id= '{0}' ".format(pid))
+	cursor.execute("DELETE FROM Comments WHERE picture_id= '{0}' ".format(pid))
+	cursor.execute("DELETE FROM Pictures WHERE picture_id= '{0}' ".format(pid))
+	conn.commit()
 	
 ###gavinend
 ###jonbegin
@@ -367,7 +382,33 @@ def viewalbum():
 			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 		return render_template('viewalbum.html', photos=photoslist, base64=base64)
 
+@app.route("/deletealbum",methods=['GET', 'POST'])
+def deletealbum():
+	if (request.method=='GET'):
+		aids=getAllAlbumIds() #getting every album id
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
+		return render_template('deletealbum.html', albumids_and_albumnames=aids_and_anames)
+	elif (request.method=='POST'):
+		aid=request.form.get('albumid')
 		
+		aids=getAllAlbumIds() #getting every album id
+		aids_and_anames=[]
+
+		pids=getAllPhotosFromAlbum(aid)
+
+		for p in pids: #deleting photos
+			deletePhotofromPhotoId(p[0])
+		delteAlbumFromAlbumId(aid) #delete album
+
+		for a in aids:
+			aids_and_anames+=getAlbumIDandNameFromId(a[0]) #getting the remaining albums
+
+
+		
+
+		return render_template('deletealbum.html', albumids_and_albumnames=aids_and_anames)		
 		
 
 ###gavinend

@@ -24,15 +24,7 @@ CREATE TABLE Friends
     FOREIGN KEY (user_friend_id) REFERENCES Users(user_id)
 );
 
-CREATE TABLE Comments 
-(
-date Date,
-user_id int4,
-text varchar(300),
-comment_id int4 AUTO_INCREMENT,
-PRIMARY KEY (comment_id),
-FOREIGN KEY (user_id) REFERENCES Users(user_id)
-); 
+
 
 CREATE TABLE Tag
 (
@@ -49,6 +41,18 @@ CREATE TABLE Pictures
   INDEX upid_idx (user_id),
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
+
+CREATE TABLE Comments 
+(
+date Date,
+user_id int4,
+picture_id int4,
+text varchar(300),
+comment_id int4 AUTO_INCREMENT,
+PRIMARY KEY (comment_id),
+FOREIGN KEY (user_id) REFERENCES Users(user_id),
+FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id)
+); 
 
 CREATE TABLE Album
 (

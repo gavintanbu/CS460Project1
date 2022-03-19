@@ -1,0 +1,42 @@
+<!-- author ben lawson balawson@bu.edu -->
+<head>
+    <title>Delete an Album!</title>
+</head>
+
+{% if photos %}
+<h2>Here are the photos in this Album</h2>
+    <ul>
+    {% for photo in photos %}
+        <li>photo_id: {{photo[1]}}<br>
+        <li>{{photo[2]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+
+{% if albumids_and_albumnames %}
+<h2>Here are the available Albums</h2>
+    <ul>
+    {% for alb in albumids_and_albumnames %}
+
+        <li>(Album ID, Album Name): {{alb}}<br>
+        
+    {% endfor %}
+    </ul>
+{% endif %}
+
+
+    <body>
+        <div class="title">
+            <h1>Enter Album ID to delete below</h1>
+        </div>
+        <div id="content">
+            <form method="post" action="{{ url_for('deletealbum') }}">
+                <label for="albumid">Enter your Album id:</label>
+                <input type="albumid" name="albumid" /><br />
+                <input type="submit" />
+            </form>
+         </div>
+    </body>
+<a href='/'>Home</a>
