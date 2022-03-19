@@ -1,0 +1,18 @@
+{% for photo in photos %}
+    <li>photo_id: {{photo[1]}}<br>
+    <li>{{photo[2]}}<br>
+    <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+{% endfor %}
+
+<body>
+    <div class="title">
+        <h1>Enter Photo ID to delete below</h1>
+    </div>
+    <div id="content">
+        <form method="post" action="{{ url_for('deletephoto') }}">
+            <label for="photoid">Enter your Album id:</label>
+            <input type="photoid" name="photoid" /><br />
+            <input type="submit" />
+        </form>
+     </div>
+</body>

@@ -409,6 +409,21 @@ def deletealbum():
 		
 
 		return render_template('deletealbum.html', albumids_and_albumnames=aids_and_anames)		
+
+@app.route("/deletephoto",methods=['GET', 'POST'])
+@flask_login.login_required
+def deletephoto():
+	if (request.method=='GET'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photos=getUsersPhotos(uid)
+		return render_template('deletephoto.html', photos=photos, base64=base64)
+	elif (request.method=='POST'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		pid=request.form.get("photoid")
+		deletePhotofromPhotoId(pid)
+		conn.commit()
+		photos=getUsersPhotos(uid)
+		return render_template('deletephoto.html', photos=photos, base64=base64)
 		
 
 ###gavinend
