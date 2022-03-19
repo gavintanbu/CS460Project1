@@ -1,0 +1,29 @@
+<!-- author ben lawson balawson@bu.edu -->
+<head>
+    <title>Create a Tag</title>
+</head>
+
+{% if tags %}
+<h2>Here are the available Tags</h2>
+    <ul>
+    {% for t in tags%}
+
+        <li>{{t[0]}}<br>
+        
+    {% endfor %}
+    </ul>
+{% endif %}
+
+    <body>
+        <div class="title">
+            <h1>Enter Tag Name below</h1>
+        </div>
+        <div id="content">
+            <form method="post" action="{{ url_for('createtag') }}">
+                <label for="tagname">Enter your Tag Name:</label>
+                <input type="tagname" name="tagname" /><br />
+                <input type="submit" />
+            </form>
+         </div>
+    </body>
+<a href='/'>Home</a>

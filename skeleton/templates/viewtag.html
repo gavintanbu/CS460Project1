@@ -1,0 +1,40 @@
+<head>
+    <title>Here are the Tags!</title>
+
+
+{% if tags %}
+<h2>Here are the available Tags</h2>
+    <ul>
+    {% for t in tags%}
+
+        <li>{{t[0]}}<br>
+        
+    {% endfor %}
+    </ul>
+{% endif %}
+
+{% if phototag %}
+<h2>Here are the photos with the same Tag</h2>
+    <ul>
+    {% for photo in phototag %}
+        <li>photo_id: {{photo[1]}}<br>
+        <li>{{photo[2]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<body>
+    <div class="title">
+        <h1>Enter a Tag to view</h1>
+    </div>
+    <div id="content">
+        <form method="post" action="{{ url_for('viewtag') }}">
+            <label for="tag">Enter your Tag:</label>
+            <input type="tag" name="tag" /><br />
+            <input type="submit" />
+        </form>
+     </div>
+</body>
+
+<a href='/'>Home</a>

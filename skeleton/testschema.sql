@@ -84,11 +84,11 @@ FOREIGN KEY(comment_id)
     );
 
 CREATE TABLE Describes(
-	Word_desc CHAR(20),
+	word_desc varchar(300),
 picture_id int4,
 Primary Key(word_desc, picture_id),
 FOREIGN KEY(picture_id)
-	REFERENCES pictures(picture_id),
+	REFERENCES Pictures(picture_id),
 FOREIGN KEY(word_desc)
 	REFERENCES Tag(word_desc)
 );

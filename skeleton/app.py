@@ -208,6 +208,16 @@ def deletePhotofromPhotoId(pid):
 	cursor.execute("DELETE FROM Comments WHERE picture_id= '{0}' ".format(pid))
 	cursor.execute("DELETE FROM Pictures WHERE picture_id= '{0}' ".format(pid))
 	conn.commit()
+
+def getAllTags():
+	cursor=conn.cursor()
+	cursor.execute("SELECT word_desc FROM Tag")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getPhotoIdsFromTag(t):
+	cursor=conn.cursor()
+	cursor.execute("SELECT picture_id FROM Describes WHERE word_desc= '{0}' ".format(t))
+	return cursor.fetchall()
 	
 ###gavinend
 ###jonbegin
@@ -415,17 +425,64 @@ def deletealbum():
 def deletephoto():
 	if (request.method=='GET'):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
-		photos=getUsersPhotos(uid)
-		return render_template('deletephoto.html', photos=photos, base64=base64)
+		return render_template('deletephoto.html', photos=getUsersPhotos(uid), base64=base64)
 	elif (request.method=='POST'):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		pid=request.form.get("photoid")
 		deletePhotofromPhotoId(pid)
 		conn.commit()
-		photos=getUsersPhotos(uid)
-		return render_template('deletephoto.html', photos=photos, base64=base64)
+		return render_template('deletephoto.html', photos=getUsersPhotos(uid), base64=base64)
 		
+@app.route("/createtag",methods=['GET','POST'])
+@flask_login.login_required
+def createtag():
+	if request.method=='POST':
+		tagname=request.form.get("tagname")
+		cursor = conn.cursor()
+		cursor.execute("INSERT INTO Tag (word_desc) VALUES ('{0}')".format(tagname))
+		conn.commit()
+		ts=getAllTags()
+		return render_template('createtag.html',tags=ts)
+	else:
+		ts=getAllTags()
+		return render_template('createtag.html', tags=ts)
 
+@app.route("/viewtag",methods=['GET','POST'])
+def viewtag():
+	if (request.method=='GET'):
+		ts=getAllTags()
+		return render_template('viewtag.html', tags=ts, base64=base64)
+	elif (request.method=='POST'):
+		ts=getAllTags()
+		tagname=request.form.get("tag")
+		pid=request.form.get("photoid")
+		photoslist=[]
+		pids=getPhotoIdsFromTag(tagname)
+		for p in pids:
+			photoslist+=getPhotoFromPhotoId(p[0])
+		
+		return render_template('viewtag.html', tags=ts, phototag=photoslist, base64=base64)
+
+@app.route("/addtotag",methods=['GET','POST'])
+@flask_login.login_required
+def addtotag():
+	if request.method=='POST':
+		tagname=request.form.get("tag")
+		pid=request.form.get("photoid")
+		cursor = conn.cursor()
+		cursor.execute("INSERT INTO Describes (word_desc, picture_id) VALUES ('{0}', '{1}')".format(tagname, pid))
+		conn.commit()
+		ts=getAllTags()
+		photoslist=[]
+		pids=getPhotoIdsFromTag(tagname)
+		for p in pids:
+			photoslist+=getPhotoFromPhotoId(p[0])
+		return render_template('addtotag.html',tags=ts, phototag=photoslist,base64=base64)
+	else:
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		ts=getAllTags()
+
+		return render_template('addtotag.html', tags=ts, photos=getUsersPhotos(uid),base64=base64)
 ###gavinend
 ###jonbegin--------------------------------------
 @app.route("/friends",methods=['GET'])
@@ -438,7 +495,7 @@ def friends():
 		for tupe in i:
 			idvar = tupe
 			recomendationarray += [getFriendsofFriends(idvar)]
-	return render_template('friendtemp.html',  friendos=getFriends(), arr = recomendationarray)
+	return render_template('friends.html',  friendos=getFriends(), arr = recomendationarray)
 ###jonend---------------------------------------
 
 if __name__ == "__main__":
