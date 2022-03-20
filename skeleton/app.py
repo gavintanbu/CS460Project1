@@ -221,6 +221,10 @@ def getPhotoIdsFromTag(t):
 	
 ###gavinend
 ###jonbegin
+def getAllCommentswithId():					#pulling comments and id for matching with pictures
+	cursor=conn.cursor()
+	cursor.execute("SELECT picture_id, text FROM Comments")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 def getFriends():
 	cursor=conn.cursor()
@@ -305,7 +309,8 @@ def hello():
 ###gavinbegin
 @app.route("/browse",methods=['GET'])
 def browse():
-	return render_template('browse.html',  photos=getAllPhotos(),base64=base64)
+
+	return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
 
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required

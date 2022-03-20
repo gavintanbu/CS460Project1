@@ -9,6 +9,16 @@
         <li>photo_id: {{photo[1]}}<br>
         <li>{{photo[2]}}<br>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+
+        {% if comments %}
+          <h3> comment section :</h3>
+          {%for comment in comments %}
+            {% if photo[1]==comment[0] %}
+              <h4>{{comment[1]}}</h4>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        
     {% endfor %}
     </ul>
 {% endif %}
