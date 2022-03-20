@@ -10,6 +10,11 @@
         <li>{{photo[2]}}<br>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
 
+        <form action='browse' method='POST'>
+          <input type='text' name="commento" id='commento' value="photo_id" placeholder='Leave a comment' required minlength="1" style="width: 15in;"></input>
+          <input type='submit' name='submit'></input>
+           </form></br>
+           
         {% if comments %}
           <h3> comment section :</h3>
           {%for comment in comments %}

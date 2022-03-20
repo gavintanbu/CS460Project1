@@ -307,11 +307,15 @@ def hello():
 
 
 ###gavinbegin
-@app.route("/browse",methods=['GET'])
+#jon begin
+@app.route("/browse",methods=['GET','POST'])
 def browse():
-
-	return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
-
+	if (request.method== "GET"):
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+	if (request.method== 'POST'):
+		print(request.form.get(0))
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+#jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
 def createalbum():
@@ -540,14 +544,21 @@ def friends():
 		try:
 			newfriendid=request.form.get('user_id')
 			print(newfriendid)
+			neee= request.form.get('sadasdasd')
+			print("--------------")
+			print(neee)
+			if (neee == None):
+				print('ahahahahah')
+			print("--------------")
+			print(newfriendid)
 			nametuple = getNamefromID(newfriendid)
 			namestring = "-1"
 			for names in nametuple:
 				namestring = names[0] + " " + names[1]
-				print(namestring) #for console
-			print("gelogelogelgeolge")
-			print(namestring)
-			print("paty TIME TIME TIME TIME TIME TIME")
+				
+			
+			
+
 					
 		except:
 			print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
