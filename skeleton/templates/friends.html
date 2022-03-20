@@ -2,6 +2,10 @@
 <head>
     <title>Here are your friends!</title>
 
+{% if notfound %}
+<h3 style="color:brown"> friend not found </h3>
+{% endif %}
+
 {% if friendos %}
 <h2>friends</h2>
     <ul>
@@ -12,6 +16,7 @@
     {% endfor %}
     </ul>
 {% endif %}
+
 {% if arr %}
 <h2>Recommendations :) (based on your exisiting friends)</h2>
     <ul>
@@ -28,7 +33,6 @@
 {% endif %}
 Add new friends  here!
 <form action='friends' method='POST'>
-				<input type='text' name='user_id' id='user_id' placeholder='user_id'></input>
+				<input type='text' name='user_id' id='user_id' placeholder='user_id' required minlength="1"></input>
 				<input type='submit' name='submit'></input>
 			   </form></br>
-
