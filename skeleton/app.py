@@ -475,6 +475,46 @@ def viewtag():
 		
 		return render_template('viewtag.html', tags=ts, phototag=photoslist, base64=base64)
 
+@app.route("/viewpopulartags",methods=['GET','POST'])
+def viewpopulartags():
+	if (request.method=='GET'):
+		ts=getAllTags() #tuple form
+		tags=[] #string form
+		tsizes=[]
+		for t in ts:
+			print(t)
+			print(t[0])
+			tags+=[t[0]]
+			tsizes+=[getPhotoIdsFromTag(t[0])]
+		print(tsizes)
+
+		lengths=[]
+		for t in tsizes:
+			lengths+=[len(t)]
+		print(lengths)
+
+
+		dict = {tags[i]: lengths[i] for i in range(len(lengths))}
+		print(dict)
+
+		topten=sorted(dict, key=dict.get, reverse=True)
+		print(topten)
+		if (len(topten)>10):
+			topten=topten[:10]
+		print(topten)
+
+		return render_template('viewpopulartags.html', mostpopular=topten, base64=base64)
+	elif (request.method=='POST'):
+		ts=getAllTags()
+		tagname=request.form.get("tag")
+		pid=request.form.get("photoid")
+		photoslist=[]
+		pids=getPhotoIdsFromTag(tagname)
+		for p in pids:
+			photoslist+=getPhotoFromPhotoId(p[0])
+		
+		return render_template('viewpopulartags.html', tags=ts, phototag=photoslist, base64=base64) #viewpopulartags submit currently sends a post to viewtag instead
+
 @app.route("/viewmultipletags",methods=['GET','POST'])
 def viewmultipletags():
 	if (request.method=='GET'):
