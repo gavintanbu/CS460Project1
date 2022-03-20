@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '1234'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Eyesofgod307@'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -221,6 +221,10 @@ def getPhotoIdsFromTag(t):
 
 ###gavinend
 ###jonbegin
+def getAllCommentswithId():					#pulling comments and id for matching with pictures
+	cursor=conn.cursor()
+	cursor.execute("SELECT picture_id, text,user_id FROM Comments")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
 def getFriends():
 	cursor=conn.cursor()
@@ -305,7 +309,8 @@ def hello():
 ###gavinbegin
 @app.route("/browse",methods=['GET'])
 def browse():
-	return render_template('browse.html',  photos=getAllPhotos(),base64=base64)
+
+	return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
 
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
