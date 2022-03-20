@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '1234'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Eyesofgod307@'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -193,6 +193,21 @@ def getPhotoFromPhotoId(pid):
 	cursor=conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id= '{0}' ".format(pid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def delteAlbumFromAlbumId(aid):
+	cursor=conn.cursor()
+	cursor.execute("DELETE FROM Contain WHERE album_id= '{0}' ".format(aid))
+	cursor.execute("DELETE FROM Creates WHERE album_id= '{0}' ".format(aid))
+	cursor.execute("DELETE FROM Album WHERE album_id= '{0}' ".format(aid))
+	conn.commit()
+
+def deletePhotofromPhotoId(pid):
+	cursor=conn.cursor()
+	cursor.execute("DELETE FROM Contain WHERE picture_id= '{0}' ".format(pid))
+	cursor.execute("DELETE FROM Describes WHERE picture_id= '{0}' ".format(pid))
+	cursor.execute("DELETE FROM Comments WHERE picture_id= '{0}' ".format(pid))
+	cursor.execute("DELETE FROM Pictures WHERE picture_id= '{0}' ".format(pid))
+	conn.commit()
 	
 ###gavinend
 ###jonbegin
@@ -210,7 +225,10 @@ def getFriendsofFriends(idnum):						#getting friends of friends using ID
 	cursor=conn.cursor()
 	cursor.execute("SELECT friend_name,user_friend_id FROM Friends WHERE user_id = '{0}'".format(idnum))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
-
+def getNamefromID(idd):
+	cursor=conn.cursor()
+	cursor.execute("SELECT first_name,last_name FROM Users WHERE user_id = '{0}'".format(idd))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -367,22 +385,105 @@ def viewalbum():
 			aids_and_anames+=getAlbumIDandNameFromId(a[0])
 		return render_template('viewalbum.html', photos=photoslist, base64=base64)
 
+@app.route("/deletealbum",methods=['GET', 'POST'])
+def deletealbum():
+	if (request.method=='GET'):
+		aids=getAllAlbumIds() #getting every album id
+		aids_and_anames=[]
+		for a in aids:
+			aids_and_anames+=getAlbumIDandNameFromId(a[0])
+		return render_template('deletealbum.html', albumids_and_albumnames=aids_and_anames)
+	elif (request.method=='POST'):
+		aid=request.form.get('albumid')
 		
+		aids=getAllAlbumIds() #getting every album id
+		aids_and_anames=[]
+
+		pids=getAllPhotosFromAlbum(aid)
+
+		for p in pids: #deleting photos
+			deletePhotofromPhotoId(p[0])
+		delteAlbumFromAlbumId(aid) #delete album
+
+		for a in aids:
+			aids_and_anames+=getAlbumIDandNameFromId(a[0]) #getting the remaining albums
+
+
+		
+
+		return render_template('deletealbum.html', albumids_and_albumnames=aids_and_anames)		
+
+@app.route("/deletephoto",methods=['GET', 'POST'])
+@flask_login.login_required
+def deletephoto():
+	if (request.method=='GET'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photos=getUsersPhotos(uid)
+		return render_template('deletephoto.html', photos=photos, base64=base64)
+	elif (request.method=='POST'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		pid=request.form.get("photoid")
+		deletePhotofromPhotoId(pid)
+		conn.commit()
+		photos=getUsersPhotos(uid)
+		return render_template('deletephoto.html', photos=photos, base64=base64)
 		
 
 ###gavinend
 ###jonbegin--------------------------------------
-@app.route("/friends",methods=['GET'])
+@app.route("/friends",methods=['GET','POST'])
 def friends():
-	uid = getUserIdFromEmail(flask_login.current_user.id)
-	friendos=getFriends()
-	idd = getFriendsID()
-	recomendationarray = []
-	for i in idd:
-		for tupe in i:
-			idvar = tupe
-			recomendationarray += [getFriendsofFriends(idvar)]
-	return render_template('friendtemp.html',  friendos=getFriends(), arr = recomendationarray)
+	if (request.method== 'GET'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		friendos=getFriends()
+		idd = getFriendsID()
+		recomendationarray = []
+		for i in idd:
+			for tupe in i:
+				idvar = tupe
+				recomendationarray += [getFriendsofFriends(idvar)]
+		return render_template('friends.html',  friendos=getFriends(), arr = recomendationarray)
+	if request.method=='POST':
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		try:
+			newfriendid=request.form.get('user_id')
+			print(newfriendid)
+			nametuple = getNamefromID(newfriendid)
+			namestring = "-1"
+			for names in nametuple:
+				namestring = names[0] + " " + names[1]
+				print(namestring) #for console
+			print("gelogelogelgeolge")
+			print(namestring)
+			print("paty TIME TIME TIME TIME TIME TIME")
+					
+		except:
+			print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+		
+		cursor = conn.cursor()
+		if (namestring == "-1"):
+			recomendationarray = []
+			idd = getFriendsID()
+			for i in idd:
+				for tupe in i:
+					idvar = tupe
+					recomendationarray += [getFriendsofFriends(idvar)]			
+			return render_template('friends.html',friendos = getFriends(),notfound = 1,arr=recomendationarray)
+		print(cursor.execute("INSERT INTO Friends (user_id, user_friend_id, friend_name) VALUES ('{0}', '{1}','{2}')".format(uid,newfriendid,namestring)))
+
+		aid=cursor.lastrowid
+
+		conn.commit()
+		recomendationarray = []
+		idd = getFriendsID()
+		for i in idd:
+			for tupe in i:
+				idvar = tupe
+				recomendationarray += [getFriendsofFriends(idvar)]
+
+		return render_template('friends.html',friendos = getFriends(),arr = recomendationarray)
+
+	
 ###jonend---------------------------------------
 
 if __name__ == "__main__":
