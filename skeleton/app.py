@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Eyesofgod307@'
+app.config['MYSQL_DATABASE_PASSWORD'] = '1234'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -218,7 +218,7 @@ def getPhotoIdsFromTag(t):
 	cursor=conn.cursor()
 	cursor.execute("SELECT picture_id FROM Describes WHERE word_desc= '{0}' ".format(t))
 	return cursor.fetchall()
-	
+
 ###gavinend
 ###jonbegin
 
@@ -465,6 +465,35 @@ def viewtag():
 			photoslist+=getPhotoFromPhotoId(p[0])
 		
 		return render_template('viewtag.html', tags=ts, phototag=photoslist, base64=base64)
+
+@app.route("/viewmultipletags",methods=['GET','POST'])
+def viewmultipletags():
+	if (request.method=='GET'):
+		ts=getAllTags()
+		return render_template('viewmultipletags.html', tags=ts, base64=base64)
+	elif (request.method=='POST'):
+		ts=getAllTags()
+		tagnames=(request.form.get("tag")).split()
+		tagscount=len(tagnames) #how many tags there are
+		photoslist=[]
+		pidslist=[]
+		for t in tagnames:
+
+			pidslist+=list(getPhotoIdsFromTag(t))
+
+		newpidslist=[]
+		for i in pidslist:
+			newpidslist+=[i[0]]
+
+		taggedwithall=[]
+		for i in newpidslist:
+			if (newpidslist.count(i)==tagscount):
+				taggedwithall+=[i]
+		
+		for p in taggedwithall:
+			photoslist+=getPhotoFromPhotoId(p)
+
+		return render_template('viewmultipletags.html', tags=ts, phototag=photoslist, base64=base64)
 
 @app.route("/addtotag",methods=['GET','POST'])
 @flask_login.login_required
