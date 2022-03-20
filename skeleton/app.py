@@ -489,6 +489,7 @@ def addtotag():
 ###gavinend
 ###jonbegin--------------------------------------
 @app.route("/friends",methods=['GET','POST'])
+@flask_login.login_required
 def friends():
 	if (request.method== 'GET'):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
