@@ -1,0 +1,29 @@
+<head>
+    <title>Here are the most popular Tags!</title>
+
+
+{% if mostpopular %}
+<h2>Here are the top 10 Tags</h2>
+    <ul>
+    {% for m in mostpopular%}
+
+        <li>{{m}}<br>
+        
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<body>
+    <div class="title">
+        <h1>Enter a Tag to view</h1>
+    </div>
+    <div id="content">
+        <form method="post" action="{{ url_for('viewtag') }}">
+            <label for="tag">Enter your Tag:</label>
+            <input type="tag" name="tag" /><br />
+            <input type="submit" />
+        </form>
+     </div>
+</body>
+
+<a href='/'>Home</a>
