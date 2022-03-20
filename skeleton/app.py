@@ -518,7 +518,7 @@ def friends():
 			print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		
 		cursor = conn.cursor()
-		if (namestring == "-1"):
+		if (namestring == "-1"):										#case where userid input it does not match database
 			recomendationarray = []
 			idd = getFriendsID()
 			for i in idd:
@@ -526,8 +526,12 @@ def friends():
 					idvar = tupe
 					recomendationarray += [getFriendsofFriends(idvar)]			
 			return render_template('friends.html',friendos = getFriends(),notfound = 1,arr=recomendationarray)
-		print(cursor.execute("INSERT INTO Friends (user_id, user_friend_id, friend_name) VALUES ('{0}', '{1}','{2}')".format(uid,newfriendid,namestring)))
+		usertuplename =getNamefromID(uid)								#getting the name of the current logged in user
+		for firstandlast in usertuplename:
+				username = firstandlast[0] + " " + firstandlast[1]
 
+		print(cursor.execute("INSERT INTO Friends (user_id, user_friend_id, friend_name) VALUES ('{0}', '{1}','{2}')".format(uid,newfriendid,namestring)))
+		print(cursor.execute("INSERT INTO Friends (user_id, user_friend_id, friend_name) VALUES ('{0}', '{1}','{2}')".format(newfriendid,uid,username)))
 		aid=cursor.lastrowid
 
 		conn.commit()
