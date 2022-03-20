@@ -305,7 +305,7 @@ def hello():
 ###gavinbegin
 @app.route("/browse",methods=['GET'])
 def browse():
-	return render_template('hello.html',  photos=getAllPhotos(),base64=base64)
+	return render_template('browse.html',  photos=getAllPhotos(),base64=base64)
 
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
