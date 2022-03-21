@@ -307,11 +307,25 @@ def hello():
 
 
 ###gavinbegin
-@app.route("/browse",methods=['GET'])
+#jon begin
+@app.route("/browse",methods=['GET','POST'])
 def browse():
+	if (request.method== "GET"):
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+	if (request.method== 'POST'):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photoid = request.form.get('photo_id')
+		comment= request.form.get('comment')
 
-	return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+		cursor = conn.cursor()
+		print(cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment)))
+		
+		aid=cursor.lastrowid
+		conn.commit()
 
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+
+#jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
 def createalbum():
@@ -585,14 +599,21 @@ def friends():
 		try:
 			newfriendid=request.form.get('user_id')
 			print(newfriendid)
+			neee= request.form.get('sadasdasd')
+			print("--------------")
+			print(neee)
+			if (neee == None):
+				print('ahahahahah')
+			print("--------------")
+			print(newfriendid)
 			nametuple = getNamefromID(newfriendid)
 			namestring = "-1"
 			for names in nametuple:
 				namestring = names[0] + " " + names[1]
-				print(namestring) #for console
-			print("gelogelogelgeolge")
-			print(namestring)
-			print("paty TIME TIME TIME TIME TIME TIME")
+				
+			
+			
+
 					
 		except:
 			print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
