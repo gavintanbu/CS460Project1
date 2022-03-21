@@ -477,27 +477,32 @@ def viewpopulartags():
 		ts=getAllTags() #tuple form
 		tags=[] #string form
 		tsizes=[]
+
+		#### changes the tags into a dictionary where the key is the tag name and the value is the number of photos with that tag ex:{food:5, exercise:12}
+
 		for t in ts:
-			print(t)
-			print(t[0])
+			#print(t)
+			#print(t[0])
 			tags+=[t[0]]
 			tsizes+=[getPhotoIdsFromTag(t[0])]
-		print(tsizes)
+		#print(tsizes)
 
 		lengths=[]
 		for t in tsizes:
 			lengths+=[len(t)]
-		print(lengths)
+		#print(lengths)
 
-
+		
 		dict = {tags[i]: lengths[i] for i in range(len(lengths))}
-		print(dict)
+		#print(dict)
 
-		topten=sorted(dict, key=dict.get, reverse=True)
-		print(topten)
+		####
+
+		topten=sorted(dict, key=dict.get, reverse=True) #turns the dictionary into a sorted list of the tag names (sorted by how many pictures are tagged by a certain tag)
+		#print(topten)
 		if (len(topten)>10):
 			topten=topten[:10]
-		print(topten)
+		#print(topten)
 
 		return render_template('viewpopulartags.html', mostpopular=topten, base64=base64)
 	elif (request.method=='POST'):
