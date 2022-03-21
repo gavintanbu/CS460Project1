@@ -95,9 +95,15 @@ FOREIGN KEY(word_desc)
 	REFERENCES Tag(word_desc)
 );
 
-
-
-
+CREATE TABLE Likes(
+	User_id int4,
+	picture_id int4,
+    Primary Key(User_id, picture_id),
+    FOREIGN KEY(User_id)
+		REFERENCES Users(User_id),
+	FOREIGN KEY(picture_id)
+		REFERENCES pictures(picture_id)
+);
 
 
 

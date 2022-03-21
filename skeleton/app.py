@@ -243,6 +243,11 @@ def getNamefromID(idd):
 	cursor=conn.cursor()
 	cursor.execute("SELECT first_name,last_name FROM Users WHERE user_id = '{0}'".format(idd))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getallLikes():
+	cursor= conn.cursor()
+	cursor.execute("SELECT User_id,picture_id FROM Likes")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -314,10 +319,12 @@ def browse():
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
 	if (request.method== 'POST'):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
+		
+
 		photoid = request.form.get('photo_id')
 		comment= request.form.get('comment')
-
 		cursor = conn.cursor()
+
 		print(cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment)))
 		
 		aid=cursor.lastrowid
