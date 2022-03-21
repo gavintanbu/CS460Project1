@@ -133,7 +133,7 @@ INSERT INTO Users (user_id,email, password) VALUES (5555,'dug', 'dug');
 INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('dug',3061,5555);
 INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('jill',5555,5678);
 INSERT INTO Users (email, password,first_name,last_name) VALUES ('test10', 'test10','TESTBU','edy');
-INSERT INTO Comments (user_id,picture_id,text) Values (4000,1,"I just want to say hello");
-INSERT INTO Comments (user_id,picture_id,text) Values (4000,1,"Second Comment");
-INSERT INTO Comments (user_id,picture_id,text) Values (4000,2,"For comment section 2");
+#INSERT INTO Comments (user_id,picture_id,text) Values (4000,1,"I just want to say hello");
+#INSERT INTO Comments (user_id,picture_id,text) Values (4000,1,"Second Comment");
+#INSERT INTO Comments (user_id,picture_id,text) Values (4000,2,"For comment section 2");
 

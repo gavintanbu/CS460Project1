@@ -313,8 +313,18 @@ def browse():
 	if (request.method== "GET"):
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
 	if (request.method== 'POST'):
-		print(request.form.get(0))
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photoid = request.form.get('photo_id')
+		comment= request.form.get('comment')
+
+		cursor = conn.cursor()
+		print(cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment)))
+		
+		aid=cursor.lastrowid
+		conn.commit()
+
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+
 #jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
