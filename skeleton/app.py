@@ -244,9 +244,14 @@ def getNamefromID(idd):
 	cursor.execute("SELECT first_name,last_name FROM Users WHERE user_id = '{0}'".format(idd))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
-def getallLikes():
+def getallLikesCounted():
 	cursor= conn.cursor()
-	cursor.execute("SELECT User_id,picture_id FROM Likes")
+	cursor.execute("SELECT picture_id,COUNT(*) FROM Likes GROUP BY picture_id")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getallPhotoId():
+	cursor= conn.cursor()
+	cursor.execute("SELECT picture_id FROM Pictures")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
@@ -316,21 +321,27 @@ def hello():
 @app.route("/browse",methods=['GET','POST'])
 def browse():
 	if (request.method== "GET"):
-		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(), base64=base64)
 	if (request.method== 'POST'):
 		uid = getUserIdFromEmail(flask_login.current_user.id)
-		
+		photoids = getallPhotoId()
+		likescounted = getallLikesCounted()
 
+		#photoarray = []
+		#for id in photoids:
+		#	temptuple = [id[0],0]
+		#	photoarray.append(temptuple)
+		print("------")
 		photoid = request.form.get('photo_id')
 		comment= request.form.get('comment')
 		cursor = conn.cursor()
 
-		print(cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment)))
+		cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment))
 		
 		aid=cursor.lastrowid
 		conn.commit()
 
-		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,base64=base64)
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)
 
 #jonend
 @app.route("/createalbum",methods=['GET','POST'])
