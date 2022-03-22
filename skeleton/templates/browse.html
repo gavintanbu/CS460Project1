@@ -15,7 +15,16 @@
           <input type='text' name='photo_id' id='photo_id' value="{{photo[1]}}" hidden="true" ></input>
           <input type='submit' name='submit'></input>
            </form></br>
-           
+        {% if likes %}
+          <h3> Likes :</h3>
+          {%for likeid in likes %}
+
+            {% if likeid[0]==photo[1] %}
+              <h4>{{likeid[1]}} Likes in this post wohoo</h4> 
+
+            {% endif %}
+          {% endfor %}
+        {% endif %}   
         {% if comments %}
           <h3> comment section :</h3>
           {%for comment in comments %}
