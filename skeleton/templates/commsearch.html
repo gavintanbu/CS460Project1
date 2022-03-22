@@ -1,0 +1,23 @@
+<!-- author ben lawson (balawson@bu.edu) -->
+<!doctype html>
+
+  <h1>Comment Search Function</h1>
+
+  <form action='searchbycomment' method='POST'>
+    <input type='text' name='comment' id='comment'  placeholder='Leave a comment' required minlength="1" style="width: 15in;"></input>
+    <input type='submit' name='submit'></input>
+  </form></br>
+{% if userl %}
+<h2>Names Below</h2>
+    <ul>
+    {% for name in userl %}
+        <li>name: {{name}}<br>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+
+
+<ul>
+<li><a href='/'>Home</a></li>
+</ul>

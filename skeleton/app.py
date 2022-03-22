@@ -9,6 +9,7 @@
 # see links for further understanding
 ###################################################
 
+from email.mime import base
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
@@ -24,7 +25,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '1234'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Eyesofgod307@'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -124,13 +125,17 @@ def register_user():
 	try:
 		email=request.form.get('email')
 		password=request.form.get('password')
+		first=request.form.get('first')
+		last=request.form.get('last')
+		dob=request.form.get('dob')
+		gender=request.form.get('gender')
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
+		print(cursor.execute("INSERT INTO Users (email, password,first_name,last_name,dob,gender) VALUES ('{0}', '{1}','{2}','{3}','{4}','{5}')".format(email, password,first,last,dob,gender)))
 		conn.commit()
 		#log user in
 		user = User()
@@ -264,9 +269,34 @@ def getallLikesCounted():
 	cursor.execute("SELECT picture_id,COUNT(*) FROM Likes GROUP BY picture_id")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getallLikesUserId():
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id,picture_id FROM Likes")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 def getallPhotoId():
 	cursor= conn.cursor()
 	cursor.execute("SELECT picture_id FROM Pictures")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getUserIdfromPictureId(phoid):
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id FROM Pictures WHERE picture_id = '{0}'".format(phoid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getUserIdfromComment(comment):
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id,Count(*) AS ccount FROM Comments WHERE text = '{0}' GROUP BY user_id ORDER BY ccount DESC".format(comment))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getAllId():
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id FROM Users")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getNumPhotos(id):
+	cursor= conn.cursor()
+	cursor.execute("SELECT Count(picture_id) FROM Pictures WHERE user_id = '{0}'".format(id))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getNumComments(id):
+	cursor= conn.cursor()
+	cursor.execute("SELECT Count(comment_id) FROM Comments WHERE user_id = '{0}'".format(id))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
@@ -338,26 +368,97 @@ def browse():
 	if (request.method== "GET"):
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(), base64=base64)
 	if (request.method== 'POST'):
+		
 		uid = getUserIdFromEmail(flask_login.current_user.id)
-		photoids = getallPhotoId()
-		likescounted = getallLikesCounted()
+		#photoids = getallPhotoId()									
+		likescounted = getallLikesCounted()						#getting the number of likes for each photo
 
 		#photoarray = []
 		#for id in photoids:
 		#	temptuple = [id[0],0]
 		#	photoarray.append(temptuple)
-		print("------")
-		photoid = request.form.get('photo_id')
+		photoid = request.form.get('photo_id')					#pulling the comment that was submitted + photo_id
 		comment= request.form.get('comment')
-		cursor = conn.cursor()
+		userfromphoto= getUserIdfromPictureId(photoid)
+		userfromphotoid=-1
+		for u in userfromphoto:
+			for user in u:
+				userfromphotoid=user
+		print(uid)
+		print(userfromphoto)
+		print("---------------")
+		if userfromphotoid!=uid:
+			cursor = conn.cursor()
+			cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment))
+			aid=cursor.lastrowid
+			conn.commit()
+			return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)
+		else: return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,isuserfromphoto=1,base64=base64)
+@app.route("/browse2",methods=['GET','POST'])
+def browse2():
+	if (request.method== 'POST'):
 
-		cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment))
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photoid = request.form.get('photo_id')
+		alreadyliked = 0							#checking if a picture has already been liked
+		likeids = getallLikesUserId()
+		#print(likeids)
+		for l in likeids:							#iterating through list to check if the same user is trying to like a post twice
+			if (l[0]==uid ):
+
+				strl = str(l[1])
+				strp = str(photoid)
+				if(strl==strp):
+					print("what is going on?")
+					alreadyliked+=1
 		
-		aid=cursor.lastrowid
-		conn.commit()
+		print(alreadyliked)
+		print("alreadyliked")
+		if alreadyliked==0:								#counter will not increase if post has been liked by one person
+			cursor = conn.cursor()
+			cursor.execute("INSERT INTO Likes (user_id,picture_id) VALUES ('{0}', '{1}')".format(uid,photoid))		
+			aid=cursor.lastrowid
+			conn.commit()
 
-		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(),isliked=alreadyliked, base64=base64)
+@app.route("/searchbycomment",methods=['GET','POST'])
+def searchbycomment():
+	if (request.method=='GET'):
+		return render_template('commsearch.html',base64=base64)
+	if (request.method=='POST'):
 
+		comment= request.form.get('comment')				#getting user id from comment
+		useridfromcomment = getUserIdfromComment(comment)	
+
+		userarr = []
+		idarr = []
+		#for u in useridfromcomment:
+		#	idarr.append(u[0])
+		#print(idarr)
+		for usertuple in useridfromcomment:				#iterating tuple of tuple to just get the id
+				nametuple = getNamefromID(usertuple[0])
+				for name in nametuple:
+						userarr.append(name[0]+ " " + name[1])
+		print(userarr)
+		return render_template('commsearch.html',userl=userarr, base64=base64)
+@app.route("/topten",methods=['GET','POST'])
+def topten():
+	#useractivity = number photos + comments - own comments
+	ids = getAllId()
+	activityarr= [] 			#calculating the activity arr, do not need to subtract comments on own posts because users cannot do that
+	for id in ids:
+		
+		nametuple =getNamefromID(id[0])
+		for name in nametuple:
+						nameee = name[0]+ " " + name[1]
+		numPhotos= getNumPhotos(id[0])[0][0]
+		numComments = getNumComments(id[0])[0][0]
+		activityarr.append((nameee,(numPhotos+numComments)))			#making a list of the names and that persons activity
+
+	activityarr.sort(key = lambda x: x[1],reverse=True)		#sorting and truncating list to top ten
+	del activityarr[10:]
+
+	return render_template("topten.html",namesl=activityarr,base64=base64)
 #jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required

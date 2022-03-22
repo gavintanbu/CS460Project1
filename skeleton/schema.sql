@@ -140,7 +140,8 @@ INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('dug',3061,555
 INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('jill',5555,5678);
 INSERT INTO Users (email, password,first_name,last_name) VALUES ('test10', 'test10','TESTBU','edy');
 
-INSERT INTO Likes (user_id,photo_id) VALUES (3061,1);
-INSERT INTO Likes (user_id,photo_id) VALUES (4000,1);
-INSERT INTO Likes (user_id,photo_id) VALUES (5555,1);
+
+INSERT INTO Likes (user_id,picture_id) VALUES (4000,1);
+INSERT INTO Likes (user_id,picture_id) VALUES (5555,1);
+INSERT INTO Likes (user_id,picture_id) VALUES (3061,2);
 

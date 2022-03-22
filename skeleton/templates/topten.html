@@ -1,0 +1,16 @@
+
+<h1>Here are the Top Ten!</h1>
+
+
+{% if namesl %}
+
+    <ol>
+    {% for names in namesl %}
+
+        <li>{{names[0]}}<br>
+        
+    {% endfor %}
+    </ol>
+{% endif %}
+
+<a href='/'>Home</a>

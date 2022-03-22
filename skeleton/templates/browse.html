@@ -1,7 +1,12 @@
 <!-- author ben lawson (balawson@bu.edu) -->
 <!doctype html>
 
-
+{% if isliked==1 %}
+<h3 style="color:brown"> You already liked that post </h3>
+{% endif %}
+{% if isuserfromphoto==1 %}
+<h3 style="color:brown"> You cannot comment on your own post </h3>
+{% endif %}
 {% if photos %}
 <h2>Here are your photos</h2>
     <ul>
@@ -9,7 +14,10 @@
         <li>photo_id: {{photo[1]}}<br>
         <li>{{photo[2]}}<br>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
-
+        <form action='browse2' method='POST'>
+          <input type='text' name='photo_id' id='photo_id' value="{{photo[1]}}" hidden="true" ></input>
+          <input type="submit" name='submit' id='submit' value="Like?" >
+        </form></br>
         <form action='browse' method='POST'>
           <input type='text' name='comment' id='comment'  placeholder='Leave a comment' required minlength="1" style="width: 15in;"></input>
           <input type='text' name='photo_id' id='photo_id' value="{{photo[1]}}" hidden="true" ></input>
