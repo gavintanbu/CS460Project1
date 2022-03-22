@@ -25,7 +25,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '1234'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'MyN3wP4ssw0rd'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -385,12 +385,12 @@ def browse():
 		for u in userfromphoto:
 			for user in u:
 				userfromphotoid=user
-		print(uid)
-		print(userfromphoto)
+
 		print("---------------")
+		print(datetime.now().date)
 		if userfromphotoid!=uid:
 			cursor = conn.cursor()
-			cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment))
+			cursor.execute("INSERT INTO Comments (user_id,picture_id,text,date) VALUES ('{0}', '{1}','{2}','{3}')".format(uid,photoid,comment,datetime.now().date()))
 			aid=cursor.lastrowid
 			conn.commit()
 			return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)

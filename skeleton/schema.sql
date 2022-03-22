@@ -125,23 +125,5 @@ FOREIGN KEY(album_id)
 
 
 
-INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
-INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
-INSERT INTO Users (user_id,email,first_name,last_name, password) VALUES (3061,'t','Jon','JP', 't');
-INSERT INTO Users (user_id,email, password) VALUES (4000,'d', 'd');
-INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('jon',3061,4000);
-INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('jp',4000,3061);
-INSERT INTO Users (user_id,email, password) VALUES (1234,'ja', 'ja');
-INSERT INTO Users (user_id,email, password) VALUES (5678,'ji', 'ji');
-INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('jack',4000,1234);
 
-INSERT INTO Users (user_id,email, password) VALUES (5555,'dug', 'dug');
-INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('dug',3061,5555);
-INSERT INTO Friends (friend_name,user_id, user_friend_id) VALUES ('jill',5555,5678);
-INSERT INTO Users (email, password,first_name,last_name) VALUES ('test10', 'test10','TESTBU','edy');
-
-
-INSERT INTO Likes (user_id,picture_id) VALUES (4000,1);
-INSERT INTO Likes (user_id,picture_id) VALUES (5555,1);
-INSERT INTO Likes (user_id,picture_id) VALUES (3061,2);
 
