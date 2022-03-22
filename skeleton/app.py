@@ -9,6 +9,7 @@
 # see links for further understanding
 ###################################################
 
+from email.mime import base
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
@@ -279,6 +280,18 @@ def getUserIdfromComment(comment):
 	cursor= conn.cursor()
 	cursor.execute("SELECT user_id,Count(*) AS ccount FROM Comments WHERE text = '{0}' GROUP BY user_id ORDER BY ccount DESC".format(comment))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getAllId():
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id FROM Users")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getNumPhotos(id):
+	cursor= conn.cursor()
+	cursor.execute("SELECT Count(picture_id) FROM Pictures WHERE user_id = '{0}'".format(id))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getNumComments(id):
+	cursor= conn.cursor()
+	cursor.execute("SELECT Count(comment_id) FROM Comments WHERE user_id = '{0}'".format(id))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -422,7 +435,24 @@ def searchbycomment():
 						userarr.append(name[0]+ " " + name[1])
 		print(userarr)
 		return render_template('commsearch.html',userl=userarr, base64=base64)
+@app.route("/topten",methods=['GET','POST'])
+def topten():
+	#useractivity = number photos + comments - own comments
+	ids = getAllId()
+	activityarr= [] 			#calculating the activity arr, do not need to subtract comments on own posts because users cannot do that
+	for id in ids:
+		
+		nametuple =getNamefromID(id[0])
+		for name in nametuple:
+						nameee = name[0]+ " " + name[1]
+		numPhotos= getNumPhotos(id[0])[0][0]
+		numComments = getNumComments(id[0])[0][0]
+		activityarr.append((nameee,(numPhotos+numComments)))			#making a list of the names and that persons activity
 
+	activityarr.sort(key = lambda x: x[1],reverse=True)		#sorting and truncating list to top ten
+	del activityarr[10:]
+
+	return render_template("topten.html",namesl=activityarr,base64=base64)
 #jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
