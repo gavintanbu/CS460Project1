@@ -7,6 +7,12 @@
 {% if isuserfromphoto==1 %}
 <h3 style="color:brown"> You cannot comment on your own post </h3>
 {% endif %}
+{% if isanon==true %}
+<h3 style="color:brown"> You cannot like as anonymous </h3>
+{% endif %}
+{% if isanonm==true %}
+<h3 style="color:brown"> You cannot comment as anonymous </h3>
+{% endif %}
 {% if photos %}
 <h2>Here are your photos</h2>
     <ul>

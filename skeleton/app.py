@@ -25,7 +25,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Eyesofgod307@'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'MyN3wP4ssw0rd'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -362,7 +362,8 @@ def browse():
 	if (request.method== "GET"):
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(), base64=base64)
 	if (request.method== 'POST'):
-		
+		if (flask_login.current_user.is_anonymous):
+			return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(),isanonm= True, base64=base64)
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		#photoids = getallPhotoId()									
 		likescounted = getallLikesCounted()						#getting the number of likes for each photo
@@ -391,7 +392,8 @@ def browse():
 @app.route("/browse2",methods=['GET','POST'])
 def browse2():
 	if (request.method== 'POST'):
-
+		if (flask_login.current_user.is_anonymous):
+			return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(),isanon= True, base64=base64)
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		photoid = request.form.get('photo_id')
 		alreadyliked = 0							#checking if a picture has already been liked
@@ -408,6 +410,7 @@ def browse2():
 		
 		print(alreadyliked)
 		print("alreadyliked")
+		
 		if alreadyliked==0:								#counter will not increase if post has been liked by one person
 			cursor = conn.cursor()
 			cursor.execute("INSERT INTO Likes (user_id,picture_id) VALUES ('{0}', '{1}')".format(uid,photoid))		
