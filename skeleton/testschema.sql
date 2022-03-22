@@ -118,8 +118,4 @@ CREATE TABLE Likes(
 
 
 
-INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
-INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
-
-
 

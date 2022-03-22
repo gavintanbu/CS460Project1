@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Eyesofgod307@'
+app.config['MYSQL_DATABASE_PASSWORD'] = '1234'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -219,6 +219,15 @@ def getPhotoIdsFromTag(t):
 	cursor.execute("SELECT picture_id FROM Describes WHERE word_desc= '{0}' ".format(t))
 	return cursor.fetchall()
 
+def getallLikesFromUserId(uid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT picture_id FROM Likes WHERE user_id= '{0}' ".format(uid))
+	return cursor.fetchall()
+
+def getTagsFromPhotoId(pid):
+	cursor=conn.cursor()
+	cursor.execute("SELECT word_desc FROM Describes WHERE picture_id= '{0}' ".format(pid))
+	return cursor.fetchall()
 ###gavinend
 ###jonbegin
 def getAllCommentswithId():					#pulling comments and id for matching with pictures
@@ -628,6 +637,35 @@ def addtotag():
 		ts=getAllTags()
 
 		return render_template('addtotag.html', tags=ts, photos=getUsersPhotos(uid),base64=base64)
+
+@app.route("/youmayalsolike",methods=['GET'])
+@flask_login.login_required
+def youmayalsolike():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	ulikes=getallLikesFromUserId(uid) #all the likes the current user has made
+	#print(list(ulikes))
+	newulikes=[]
+	for ul in list(ulikes): #extracts the ids of the pictures the user liked
+		newulikes+=[ul[0]]
+	#print(newulikes)
+	tags=[]
+	for ul in newulikes:
+		tags+=list(getTagsFromPhotoId(ul))
+	#print(tags)
+
+	newtags=[]
+	for t in tags: #extracting the tag values from the tuple
+		newtags+=[t[0]]
+	#print(newtags)
+
+	photoslist=[] #list of recs
+	for t in newtags:
+		pids=getPhotoIdsFromTag(t) #gets the photos from the tags
+		for p in pids:
+			photoslist+=getPhotoFromPhotoId(p[0]) #adds the photos
+
+	return render_template('youmayalsolike.html', phototag=photoslist,base64=base64)
+
 ###gavinend
 ###jonbegin--------------------------------------
 @app.route("/friends",methods=['GET','POST'])

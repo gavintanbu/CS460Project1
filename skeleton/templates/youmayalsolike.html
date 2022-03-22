@@ -1,0 +1,14 @@
+
+
+{% if phototag %}
+<h2>Here are your recommendations!</h2>
+    <ul>
+    {% for photo in phototag %}
+        <li>photo_id: {{photo[1]}}<br>
+        <li>{{photo[2]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<a href='/'>Home</a>
