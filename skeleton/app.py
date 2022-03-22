@@ -271,6 +271,10 @@ def getallPhotoId():
 	cursor= conn.cursor()
 	cursor.execute("SELECT picture_id FROM Pictures")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getUserIdfromPictureId(phoid):
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id FROM Pictures WHERE picture_id = '{0}'".format(phoid))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -352,14 +356,21 @@ def browse():
 		#	photoarray.append(temptuple)
 		photoid = request.form.get('photo_id')					#pulling the comment that was submitted + photo_id
 		comment= request.form.get('comment')
-		cursor = conn.cursor()
-
-		cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment))
-		
-		aid=cursor.lastrowid
-		conn.commit()
-
-		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)
+		userfromphoto= getUserIdfromPictureId(photoid)
+		userfromphotoid=-1
+		for u in userfromphoto:
+			for user in u:
+				userfromphotoid=user
+		print(uid)
+		print(userfromphoto)
+		print("---------------")
+		if userfromphotoid!=uid:
+			cursor = conn.cursor()
+			cursor.execute("INSERT INTO Comments (user_id,picture_id,text) VALUES ('{0}', '{1}','{2}')".format(uid,photoid,comment))
+			aid=cursor.lastrowid
+			conn.commit()
+			return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)
+		else: return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,isuserfromphoto=1,base64=base64)
 @app.route("/browse2",methods=['GET','POST'])
 def browse2():
 	if (request.method== 'POST'):

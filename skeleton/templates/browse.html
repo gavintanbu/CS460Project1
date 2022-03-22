@@ -4,6 +4,9 @@
 {% if isliked==1 %}
 <h3 style="color:brown"> You already liked that post </h3>
 {% endif %}
+{% if isuserfromphoto==1 %}
+<h3 style="color:brown"> You cannot comment on your own post </h3>
+{% endif %}
 {% if photos %}
 <h2>Here are your photos</h2>
     <ul>
