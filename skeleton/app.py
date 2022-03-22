@@ -148,6 +148,10 @@ def getUsersPhotos(uid):
 
 
 ###gavinbegin
+def getUsersPhotoIds(uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT picture_id FROM Pictures WHERE user_id = '{0}'".format(uid))
+	return cursor.fetchall()
 
 def getAllPhotos():
 	cursor=conn.cursor()
@@ -228,6 +232,8 @@ def getTagsFromPhotoId(pid):
 	cursor=conn.cursor()
 	cursor.execute("SELECT word_desc FROM Describes WHERE picture_id= '{0}' ".format(pid))
 	return cursor.fetchall()
+
+
 ###gavinend
 ###jonbegin
 def getAllCommentswithId():					#pulling comments and id for matching with pictures
@@ -511,6 +517,45 @@ def viewtag():
 			photoslist+=getPhotoFromPhotoId(p[0])
 		
 		return render_template('viewtag.html', tags=ts, phototag=photoslist, base64=base64)
+
+@app.route("/viewowntag",methods=['GET','POST']) #shows only the photos you own with a certain tag
+@flask_login.login_required
+def viewowntag():
+	if (request.method=='GET'):
+		ts=getAllTags()
+		return render_template('viewowntag.html', tags=ts, base64=base64)
+	elif (request.method=='POST'):
+		uid=getUserIdFromEmail(flask_login.current_user.id)
+		ts=getAllTags()
+		tagname=request.form.get("tag")
+		pid=request.form.get("photoid")
+		photoslist=[]
+
+		#pids=getPhotoIdsFromTag(tagname)#
+		pids=getPhotoIdsFromTag(tagname)
+		newpids=[] #all the photo ids of the photos in the tag
+		for p in pids:
+			newpids+=[p[0]]
+		#print(newpids)
+
+
+		userspids=getUsersPhotoIds(uid)
+		newuserspids=[] #all the photo ids of the photos the current user owns
+		for up in userspids:
+			newuserspids+=[up[0]]
+
+
+
+		#print(newuserspids)
+		#print(newpids)
+		intersectionpids = [x for x in newuserspids if x in newpids]
+
+		#print(intersectionpids)
+		for p in intersectionpids:
+
+			photoslist+=getPhotoFromPhotoId(p)#
+		
+		return render_template('viewowntag.html', tags=ts, phototag=photoslist, base64=base64)
 
 @app.route("/viewpopulartags",methods=['GET','POST'])
 def viewpopulartags():
