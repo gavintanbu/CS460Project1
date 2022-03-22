@@ -249,6 +249,11 @@ def getallLikesCounted():
 	cursor.execute("SELECT picture_id,COUNT(*) FROM Likes GROUP BY picture_id")
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getallLikesUserId():
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id,picture_id FROM Likes")
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
 def getallPhotoId():
 	cursor= conn.cursor()
 	cursor.execute("SELECT picture_id FROM Pictures")
@@ -323,16 +328,16 @@ def browse():
 	if (request.method== "GET"):
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(), base64=base64)
 	if (request.method== 'POST'):
+		
 		uid = getUserIdFromEmail(flask_login.current_user.id)
-		photoids = getallPhotoId()
-		likescounted = getallLikesCounted()
+		#photoids = getallPhotoId()									
+		likescounted = getallLikesCounted()						#getting the number of likes for each photo
 
 		#photoarray = []
 		#for id in photoids:
 		#	temptuple = [id[0],0]
 		#	photoarray.append(temptuple)
-		print("------")
-		photoid = request.form.get('photo_id')
+		photoid = request.form.get('photo_id')					#pulling the comment that was submitted + photo_id
 		comment= request.form.get('comment')
 		cursor = conn.cursor()
 
@@ -342,7 +347,33 @@ def browse():
 		conn.commit()
 
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId(),likes=likescounted,base64=base64)
+@app.route("/browse2",methods=['GET','POST'])
+def browse2():
+	if (request.method== 'POST'):
 
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		photoid = request.form.get('photo_id')
+		alreadyliked = 0							#checking if a picture has already been liked
+		likeids = getallLikesUserId()
+		#print(likeids)
+		for l in likeids:							#iterating through list to check if the same user is trying to like a post twice
+			if (l[0]==uid ):
+
+				strl = str(l[1])
+				strp = str(photoid)
+				if(strl==strp):
+					print("what is going on?")
+					alreadyliked+=1
+		
+		print(alreadyliked)
+		print("alreadyliked")
+		if alreadyliked==0:								#counter will not increase if post has been liked by one person
+			cursor = conn.cursor()
+			cursor.execute("INSERT INTO Likes (user_id,picture_id) VALUES ('{0}', '{1}')".format(uid,photoid))		
+			aid=cursor.lastrowid
+			conn.commit()
+
+		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(),isliked=alreadyliked, base64=base64)
 #jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
