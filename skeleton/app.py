@@ -275,6 +275,10 @@ def getUserIdfromPictureId(phoid):
 	cursor= conn.cursor()
 	cursor.execute("SELECT user_id FROM Pictures WHERE picture_id = '{0}'".format(phoid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+def getUserIdfromComment(comment):
+	cursor= conn.cursor()
+	cursor.execute("SELECT user_id,Count(*) AS ccount FROM Comments WHERE text = '{0}' GROUP BY user_id ORDER BY ccount DESC".format(comment))
+	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 ###jonend
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -398,6 +402,27 @@ def browse2():
 			conn.commit()
 
 		return render_template('browse.html',  photos=getAllPhotos(),comments=getAllCommentswithId() ,likes= getallLikesCounted(),isliked=alreadyliked, base64=base64)
+@app.route("/searchbycomment",methods=['GET','POST'])
+def searchbycomment():
+	if (request.method=='GET'):
+		return render_template('commsearch.html',base64=base64)
+	if (request.method=='POST'):
+
+		comment= request.form.get('comment')				#getting user id from comment
+		useridfromcomment = getUserIdfromComment(comment)	
+
+		userarr = []
+		idarr = []
+		#for u in useridfromcomment:
+		#	idarr.append(u[0])
+		#print(idarr)
+		for usertuple in useridfromcomment:				#iterating tuple of tuple to just get the id
+				nametuple = getNamefromID(usertuple[0])
+				for name in nametuple:
+						userarr.append(name[0]+ " " + name[1])
+		print(userarr)
+		return render_template('commsearch.html',userl=userarr, base64=base64)
+
 #jonend
 @app.route("/createalbum",methods=['GET','POST'])
 @flask_login.login_required
